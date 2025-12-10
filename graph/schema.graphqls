@@ -7,7 +7,6 @@ type User {
 
 # response type for follow/unfollow mutations
 type FollowResponse {
-  success: Boolean! # if the operation was a success or not
   message: String # response from the api
 }
 

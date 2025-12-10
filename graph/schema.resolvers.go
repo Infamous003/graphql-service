@@ -9,18 +9,70 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/Infamous003/graphql-service/graph/model"
 )
 
 // Follow is the resolver for the follow field.
 func (r *mutationResolver) Follow(ctx context.Context, followerID string, followeeID string) (*model.FollowResponse, error) {
-	panic(fmt.Errorf("not implemented: Follow - follow"))
+	// Convert IDs from string to int for the Follow Service
+	followerIDInt, err := strconv.Atoi(followerID)
+	if err != nil {
+		msg := "invalid follower ID"
+		return &model.FollowResponse{Message: &msg}, nil
+	}
+
+	followeeIDInt, err := strconv.Atoi(followeeID)
+	if err != nil {
+		msg := "invalid followee ID"
+		return &model.FollowResponse{Message: &msg}, nil
+	}
+
+	// Payload must match Follow Service expected JSON
+	payload := map[string]int{
+		"follower_id": followerIDInt,
+		"followee_id": followeeIDInt,
+	}
+
+	var resp model.FollowResponse
+	err = r.Resolver.callFollowService(http.MethodPost, "/follow", payload, &resp)
+	if err != nil {
+		msg := err.Error()
+		return &model.FollowResponse{Message: &msg}, nil
+	}
+
+	return &resp, nil
 }
 
 // Unfollow is the resolver for the unfollow field.
 func (r *mutationResolver) Unfollow(ctx context.Context, followerID string, followeeID string) (*model.FollowResponse, error) {
-	panic(fmt.Errorf("not implemented: Unfollow - unfollow"))
+	// Convert IDs to int
+	followerIDInt, err := strconv.Atoi(followerID)
+	if err != nil {
+		msg := "invalid follower ID"
+		return &model.FollowResponse{Message: &msg}, nil
+	}
+
+	followeeIDInt, err := strconv.Atoi(followeeID)
+	if err != nil {
+		msg := "invalid followee ID"
+		return &model.FollowResponse{Message: &msg}, nil
+	}
+
+	payload := map[string]int{
+		"follower_id": followerIDInt,
+		"followee_id": followeeIDInt,
+	}
+
+	var resp model.FollowResponse
+	err = r.Resolver.callFollowService(http.MethodPost, "/unfollow", payload, &resp)
+	if err != nil {
+		msg := err.Error()
+		return &model.FollowResponse{Message: &msg}, nil
+	}
+
+	return &resp, nil
 }
 
 // Followers is the resolver for the followers field.
@@ -35,22 +87,24 @@ func (r *queryResolver) Followers(ctx context.Context, userID string) ([]*model.
 		return nil, fmt.Errorf("failed to fetch followers: %v", err)
 	}
 
-	return resp.Followers, nil
+	return convertUsers(resp.Followers), nil
 }
 
 // Following is the resolver for the following field.
 func (r *queryResolver) Following(ctx context.Context, userID string) ([]*model.User, error) {
 	var resp struct {
-		Following []*model.User `json:"following"`
+		Following []*model.User `json:"following"` // Match the Follow Service's response field
 	}
 
+	// Call Follow Service's /following endpoint
 	endpoint := fmt.Sprintf("/users/%s/following", userID)
 	err := r.Resolver.callFollowService(http.MethodGet, endpoint, nil, &resp)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch following: %v", err)
 	}
 
-	return resp.Following, nil
+	// Convert the response to match GraphQL type (id as string)
+	return convertUsers(resp.Following), nil
 }
 
 // Mutation returns MutationResolver implementation.

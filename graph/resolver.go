@@ -6,12 +6,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-)
 
-// This file will not be regenerated automatically.
-//
-// It serves as dependency injection for your app, add any dependencies you require
-// here.
+	"github.com/Infamous003/graphql-service/graph/model"
+)
 
 type Resolver struct {
 	FollowServiceURL string
@@ -48,4 +45,16 @@ func (r *Resolver) callFollowService(method, endpoint string, payload interface{
 	}
 
 	return json.NewDecoder(resp.Body).Decode(result)
+}
+
+func convertUsers(users []*model.User) []*model.User {
+	result := make([]*model.User, len(users))
+	for i, u := range users {
+		result[i] = &model.User{
+			ID:        fmt.Sprintf("%v", u.ID),
+			Username:  u.Username,
+			CreatedAt: u.CreatedAt,
+		}
+	}
+	return result
 }
