@@ -1,0 +1,24 @@
+# USer type
+type User {
+  id: ID!
+  username: String!
+  createdAt: String!
+}
+
+# response type for follow/unfollow mutations
+type FollowResponse {
+  success: Boolean! # if the operation was a success or not
+  message: String # response from the api
+}
+
+# Queries exposed by GraphQL
+type Query {
+  followers(userId: ID!): [User!]!
+  following(userId: ID!): [User!]!
+}
+
+# Mutations exposed by GraphQL
+type Mutation {
+  follow(followerId: ID!, followeeId: ID!): FollowResponse!
+  unfollow(followerId: ID!, followeeId: ID!): FollowResponse!
+}
