@@ -15,7 +15,7 @@ type Resolver struct {
 	HTTPClient       *http.Client
 }
 
-func (r *Resolver) callFollowService(method, endpoint string, payload interface{}, result interface{}) error {
+func (r *Resolver) callFollowService(method, endpoint string, payload any, result any) error {
 	var body io.Reader
 	if payload != nil {
 		b, _ := json.Marshal(payload)
@@ -41,7 +41,7 @@ func (r *Resolver) callFollowService(method, endpoint string, payload interface{
 	if resp.StatusCode >= 400 {
 		var errResp map[string]string
 		json.NewDecoder(resp.Body).Decode(&errResp)
-		return fmt.Errorf(errResp["error"])
+		return fmt.Errorf("Error from Follow Service: %s", errResp["message"])
 	}
 
 	return json.NewDecoder(resp.Body).Decode(result)
