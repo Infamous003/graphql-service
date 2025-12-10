@@ -49,17 +49,16 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	FollowResponse struct {
 		Message func(childComplexity int) int
-		Success func(childComplexity int) int
 	}
 
 	Mutation struct {
-		Follow   func(childComplexity int, followerID string, followeeID string) int
-		Unfollow func(childComplexity int, followerID string, followeeID string) int
+		Follow   func(childComplexity int, followerID int32, followeeID int32) int
+		Unfollow func(childComplexity int, followerID int32, followeeID int32) int
 	}
 
 	Query struct {
-		Followers func(childComplexity int, userID string) int
-		Following func(childComplexity int, userID string) int
+		Followers func(childComplexity int, userID int32) int
+		Following func(childComplexity int, userID int32) int
 	}
 
 	User struct {
@@ -70,12 +69,12 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	Follow(ctx context.Context, followerID string, followeeID string) (*model.FollowResponse, error)
-	Unfollow(ctx context.Context, followerID string, followeeID string) (*model.FollowResponse, error)
+	Follow(ctx context.Context, followerID int32, followeeID int32) (*model.FollowResponse, error)
+	Unfollow(ctx context.Context, followerID int32, followeeID int32) (*model.FollowResponse, error)
 }
 type QueryResolver interface {
-	Followers(ctx context.Context, userID string) ([]*model.User, error)
-	Following(ctx context.Context, userID string) ([]*model.User, error)
+	Followers(ctx context.Context, userID int32) ([]*model.User, error)
+	Following(ctx context.Context, userID int32) ([]*model.User, error)
 }
 
 type executableSchema struct {
@@ -103,12 +102,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.FollowResponse.Message(childComplexity), true
-	case "FollowResponse.success":
-		if e.complexity.FollowResponse.Success == nil {
-			break
-		}
-
-		return e.complexity.FollowResponse.Success(childComplexity), true
 
 	case "Mutation.follow":
 		if e.complexity.Mutation.Follow == nil {
@@ -120,7 +113,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Follow(childComplexity, args["followerId"].(string), args["followeeId"].(string)), true
+		return e.complexity.Mutation.Follow(childComplexity, args["followerId"].(int32), args["followeeId"].(int32)), true
 	case "Mutation.unfollow":
 		if e.complexity.Mutation.Unfollow == nil {
 			break
@@ -131,7 +124,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Unfollow(childComplexity, args["followerId"].(string), args["followeeId"].(string)), true
+		return e.complexity.Mutation.Unfollow(childComplexity, args["followerId"].(int32), args["followeeId"].(int32)), true
 
 	case "Query.followers":
 		if e.complexity.Query.Followers == nil {
@@ -143,7 +136,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Followers(childComplexity, args["userId"].(string)), true
+		return e.complexity.Query.Followers(childComplexity, args["userId"].(int32)), true
 	case "Query.following":
 		if e.complexity.Query.Following == nil {
 			break
@@ -154,7 +147,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Following(childComplexity, args["userId"].(string)), true
+		return e.complexity.Query.Following(childComplexity, args["userId"].(int32)), true
 
 	case "User.createdAt":
 		if e.complexity.User.CreatedAt == nil {
@@ -301,12 +294,12 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_follow_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "followerId", ec.unmarshalNID2string)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "followerId", ec.unmarshalNInt2int32)
 	if err != nil {
 		return nil, err
 	}
 	args["followerId"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "followeeId", ec.unmarshalNID2string)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "followeeId", ec.unmarshalNInt2int32)
 	if err != nil {
 		return nil, err
 	}
@@ -317,12 +310,12 @@ func (ec *executionContext) field_Mutation_follow_args(ctx context.Context, rawA
 func (ec *executionContext) field_Mutation_unfollow_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "followerId", ec.unmarshalNID2string)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "followerId", ec.unmarshalNInt2int32)
 	if err != nil {
 		return nil, err
 	}
 	args["followerId"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "followeeId", ec.unmarshalNID2string)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "followeeId", ec.unmarshalNInt2int32)
 	if err != nil {
 		return nil, err
 	}
@@ -344,7 +337,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_followers_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "userId", ec.unmarshalNID2string)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "userId", ec.unmarshalNInt2int32)
 	if err != nil {
 		return nil, err
 	}
@@ -355,7 +348,7 @@ func (ec *executionContext) field_Query_followers_args(ctx context.Context, rawA
 func (ec *executionContext) field_Query_following_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "userId", ec.unmarshalNID2string)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "userId", ec.unmarshalNInt2int32)
 	if err != nil {
 		return nil, err
 	}
@@ -415,35 +408,6 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _FollowResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.FollowResponse) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_FollowResponse_success,
-		func(ctx context.Context) (any, error) {
-			return obj.Success, nil
-		},
-		nil,
-		ec.marshalNBoolean2bool,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_FollowResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "FollowResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _FollowResponse_message(ctx context.Context, field graphql.CollectedField, obj *model.FollowResponse) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -481,7 +445,7 @@ func (ec *executionContext) _Mutation_follow(ctx context.Context, field graphql.
 		ec.fieldContext_Mutation_follow,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().Follow(ctx, fc.Args["followerId"].(string), fc.Args["followeeId"].(string))
+			return ec.resolvers.Mutation().Follow(ctx, fc.Args["followerId"].(int32), fc.Args["followeeId"].(int32))
 		},
 		nil,
 		ec.marshalNFollowResponse2ᚖgithubᚗcomᚋInfamous003ᚋgraphqlᚑserviceᚋgraphᚋmodelᚐFollowResponse,
@@ -498,8 +462,6 @@ func (ec *executionContext) fieldContext_Mutation_follow(ctx context.Context, fi
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "success":
-				return ec.fieldContext_FollowResponse_success(ctx, field)
 			case "message":
 				return ec.fieldContext_FollowResponse_message(ctx, field)
 			}
@@ -528,7 +490,7 @@ func (ec *executionContext) _Mutation_unfollow(ctx context.Context, field graphq
 		ec.fieldContext_Mutation_unfollow,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().Unfollow(ctx, fc.Args["followerId"].(string), fc.Args["followeeId"].(string))
+			return ec.resolvers.Mutation().Unfollow(ctx, fc.Args["followerId"].(int32), fc.Args["followeeId"].(int32))
 		},
 		nil,
 		ec.marshalNFollowResponse2ᚖgithubᚗcomᚋInfamous003ᚋgraphqlᚑserviceᚋgraphᚋmodelᚐFollowResponse,
@@ -545,8 +507,6 @@ func (ec *executionContext) fieldContext_Mutation_unfollow(ctx context.Context, 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "success":
-				return ec.fieldContext_FollowResponse_success(ctx, field)
 			case "message":
 				return ec.fieldContext_FollowResponse_message(ctx, field)
 			}
@@ -575,7 +535,7 @@ func (ec *executionContext) _Query_followers(ctx context.Context, field graphql.
 		ec.fieldContext_Query_followers,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Followers(ctx, fc.Args["userId"].(string))
+			return ec.resolvers.Query().Followers(ctx, fc.Args["userId"].(int32))
 		},
 		nil,
 		ec.marshalNUser2ᚕᚖgithubᚗcomᚋInfamous003ᚋgraphqlᚑserviceᚋgraphᚋmodelᚐUserᚄ,
@@ -624,7 +584,7 @@ func (ec *executionContext) _Query_following(ctx context.Context, field graphql.
 		ec.fieldContext_Query_following,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Following(ctx, fc.Args["userId"].(string))
+			return ec.resolvers.Query().Following(ctx, fc.Args["userId"].(int32))
 		},
 		nil,
 		ec.marshalNUser2ᚕᚖgithubᚗcomᚋInfamous003ᚋgraphqlᚑserviceᚋgraphᚋmodelᚐUserᚄ,
@@ -783,7 +743,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 			return obj.ID, nil
 		},
 		nil,
-		ec.marshalNID2string,
+		ec.marshalNInt2int32,
 		true,
 		true,
 	)
@@ -796,7 +756,7 @@ func (ec *executionContext) fieldContext_User_id(_ context.Context, field graphq
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2325,11 +2285,6 @@ func (ec *executionContext) _FollowResponse(ctx context.Context, sel ast.Selecti
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("FollowResponse")
-		case "success":
-			out.Values[i] = ec._FollowResponse_success(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "message":
 			out.Values[i] = ec._FollowResponse_message(ctx, field, obj)
 		default:
@@ -2919,14 +2874,14 @@ func (ec *executionContext) marshalNFollowResponse2ᚖgithubᚗcomᚋInfamous003
 	return ec._FollowResponse(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (string, error) {
-	res, err := graphql.UnmarshalID(v)
+func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v any) (int32, error) {
+	res, err := graphql.UnmarshalInt32(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.SelectionSet, v int32) graphql.Marshaler {
 	_ = sel
-	res := graphql.MarshalID(v)
+	res := graphql.MarshalInt32(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")

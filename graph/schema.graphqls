@@ -1,6 +1,6 @@
 # USer type
 type User {
-  id: ID!
+  id: Int!
   username: String!
   createdAt: String!
 }
@@ -12,12 +12,12 @@ type FollowResponse {
 
 # Queries exposed by GraphQL
 type Query {
-  followers(userId: ID!): [User!]!
-  following(userId: ID!): [User!]!
+  followers(userId: Int!): [User!]!
+  following(userId: Int!): [User!]!
 }
 
 # Mutations exposed by GraphQL
 type Mutation {
-  follow(followerId: ID!, followeeId: ID!): FollowResponse!
-  unfollow(followerId: ID!, followeeId: ID!): FollowResponse!
+  follow(followerId: Int!, followeeId: Int!): FollowResponse!
+  unfollow(followerId: Int!, followeeId: Int!): FollowResponse!
 }

@@ -3,7 +3,6 @@
 package model
 
 type FollowResponse struct {
-	Success bool    `json:"success"`
 	Message *string `json:"message,omitempty"`
 }
 
@@ -14,7 +13,7 @@ type Query struct {
 }
 
 type User struct {
-	ID        string `json:"id"`
+	ID        int32  `json:"id"`
 	Username  string `json:"username"`
 	CreatedAt string `json:"createdAt"`
 }

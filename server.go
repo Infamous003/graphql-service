@@ -22,6 +22,11 @@ func main() {
 		port = defaultPort
 	}
 
+	followServiceURL := os.Getenv("FOLLOW_SERVICE_URL")
+	if followServiceURL == "" {
+		log.Fatal("FOLLOW_SERVICE_URL environment variable is not set")
+	}
+
 	resolver := &graph.Resolver{
 		FollowServiceURL: "https://follow-service-n9fk.onrender.com",
 		HTTPClient:       &http.Client{},

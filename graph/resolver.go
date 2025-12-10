@@ -41,7 +41,7 @@ func (r *Resolver) callFollowService(method, endpoint string, payload any, resul
 	if resp.StatusCode >= 400 {
 		var errResp map[string]string
 		json.NewDecoder(resp.Body).Decode(&errResp)
-		return fmt.Errorf("Error from Follow Service: %s", errResp["message"])
+		return fmt.Errorf("%v", errResp["error"])
 	}
 
 	return json.NewDecoder(resp.Body).Decode(result)
@@ -51,7 +51,7 @@ func convertUsers(users []*model.User) []*model.User {
 	result := make([]*model.User, len(users))
 	for i, u := range users {
 		result[i] = &model.User{
-			ID:        fmt.Sprintf("%v", u.ID),
+			ID:        u.ID,
 			Username:  u.Username,
 			CreatedAt: u.CreatedAt,
 		}
