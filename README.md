@@ -22,7 +22,7 @@ Both of these are in their own repo, and deployed separately on Render. Link for
 ---
 
 ## Architecture Overview
-[!Architecture Diagram](./images/architecture.png)
+![Architecture Diagram](./images/architecture.png)
 
 - The Follow Service owns all follow-related data and logic. Although it also exposes endpoints to create a user, list users, and user by ID, but in real world, this functionality would be in its own separate user-service, and follow service would communicate with it.
 - The GraphQL Service acts as a gateway, forwarding GraphQL requests to the Follow Service API
