@@ -45,8 +45,8 @@ erDiagram
         TIMESTAMP created_at
     }
 
-    USERS ||--o{ FOLLOWS : "follower"}
-    USERS ||--o{ FOLLOWS : "followee"}
+    USERS ||--o{ FOLLOWS : "follower"
+    USERS ||--o{ FOLLOWS : "followee"
 ```
 
 ---
